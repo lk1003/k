@@ -10,6 +10,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       onGenerateRoute: onGenerateRoute,
+      theme: ThemeData(
+        primaryColor: Colors.white
+      ),
     );
   }
 }

@@ -11,7 +11,8 @@ class CategoryPage extends StatefulWidget {
   _CategoryPageState createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> {
+class _CategoryPageState extends State<CategoryPage>
+    with AutomaticKeepAliveClientMixin {
   int _selectIndex = 0;
   List _leftCateList = [];
   List _rightCateList = [];
@@ -105,17 +106,23 @@ class _CategoryPageState extends State<CategoryPage> {
               //处理图片
               String pic = this._rightCateList[index].pic;
               pic = Config.domain + pic.replaceAll('\\', '/');
-              return Container(
-                child: Column(
-                  children: <Widget>[
-                    AspectRatio(
-                      aspectRatio: 1 / 1,
-                      child: Image.network(pic, fit: BoxFit.cover),
-                    ),
-                    Container(
-                        height: ScreenAdapter.height(28),
-                        child: Text("${this._rightCateList[index].title}"))
-                  ],
+              return InkWell(
+                onTap: () {
+                  Navigator.pushNamed(context, '/productList',
+                      arguments: {"cid": this._rightCateList[index].sId});
+                },
+                child: Container(
+                  child: Column(
+                    children: <Widget>[
+                      AspectRatio(
+                        aspectRatio: 1 / 1,
+                        child: Image.network(pic, fit: BoxFit.cover),
+                      ),
+                      Container(
+                          height: ScreenAdapter.height(28),
+                          child: Text("${this._rightCateList[index].title}"))
+                    ],
+                  ),
                 ),
               );
             },
@@ -159,4 +166,8 @@ class _CategoryPageState extends State<CategoryPage> {
       ],
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }
