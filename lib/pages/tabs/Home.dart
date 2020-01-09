@@ -16,12 +16,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   List _focusData = [];
   List _hotProductList = [];
   List _bestProductList = [];
-
- 
 
   @override
   void initState() {
@@ -146,49 +145,57 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
           //图片
           String sPic = value.sPic;
           sPic = Config.domain + sPic.replaceAll('\\', '/');
-          return Container(
-            padding: EdgeInsets.all(10),
-            width: itemWidth,
-            decoration: BoxDecoration(
-                border: Border.all(
-                    color: Color.fromRGBO(233, 233, 233, 0.9), width: 1)),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  child: AspectRatio(
-                    //防止服务器返回的图片大小不一致导致高度不一致问题
-                    aspectRatio: 1 / 1,
-                    child: Image.network(sPic, fit: BoxFit.cover),
+          return InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, "/productContent",
+                  arguments: {"id": value.sId});
+              print(value.sId);
+            },
+            child: Container(
+              padding: EdgeInsets.all(10),
+              width: itemWidth,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Color.fromRGBO(233, 233, 233, 0.9), width: 1)),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    child: AspectRatio(
+                      //防止服务器返回的图片大小不一致导致高度不一致问题
+                      aspectRatio: 1 / 1,
+                      child: Image.network(sPic, fit: BoxFit.cover),
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: ScreenAdapter.height(20)),
-                  child: Text("${value.title}",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.black54)),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: ScreenAdapter.height(20)),
-                  child: Stack(
-                    children: <Widget>[
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text("¥${value.price}",
-                            style: TextStyle(color: Colors.red, fontSize: 16)),
-                      ),
-                      Align(
-                          alignment: Alignment.centerRight,
-                          child: Text("¥${value.oldPrice}",
-                              style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 14,
-                                  decoration: TextDecoration.lineThrough)))
-                    ],
+                  Padding(
+                    padding: EdgeInsets.only(top: ScreenAdapter.height(20)),
+                    child: Text("${value.title}",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.black54)),
                   ),
-                )
-              ],
+                  Padding(
+                    padding: EdgeInsets.only(top: ScreenAdapter.height(20)),
+                    child: Stack(
+                      children: <Widget>[
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text("¥${value.price}",
+                              style:
+                                  TextStyle(color: Colors.red, fontSize: 16)),
+                        ),
+                        Align(
+                            alignment: Alignment.centerRight,
+                            child: Text("¥${value.oldPrice}",
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 14,
+                                    decoration: TextDecoration.lineThrough)))
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           );
         }).toList(),
@@ -199,20 +206,52 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin{
   @override
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);
-    return ListView(
-      children: <Widget>[
-        _swiperWidget(),
-        SizedBox(height: ScreenAdapter.height(10)),
-        _titleWidget("猜你喜欢"),
-        SizedBox(height: ScreenAdapter.height(10)),
-        _hotProductListWidget(),
-        _titleWidget("热门推荐"),
-        _recProductListWidget()
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.center_focus_weak, size: 28, color: Colors.black87),
+          onPressed: null,
+        ),
+        title: InkWell(
+          child: Container(
+            height: ScreenAdapter.height(70),
+            decoration: BoxDecoration(
+                color: Color.fromRGBO(233, 233, 233, 0.8),
+                borderRadius: BorderRadius.circular(30)),
+            padding: EdgeInsets.only(left: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.search),
+                Text("笔记本", style: TextStyle(fontSize: ScreenAdapter.size(28)))
+              ],
+            ),
+          ),
+          onTap: () {
+            Navigator.pushNamed(context, '/search');
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.message, size: 28, color: Colors.black87),
+            onPressed: null,
+          )
+        ],
+      ),
+      body: ListView(
+        children: <Widget>[
+          _swiperWidget(),
+          SizedBox(height: ScreenAdapter.height(10)),
+          _titleWidget("猜你喜欢"),
+          SizedBox(height: ScreenAdapter.height(10)),
+          _hotProductListWidget(),
+          _titleWidget("热门推荐"),
+          _recProductListWidget()
+        ],
+      ),
     );
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }

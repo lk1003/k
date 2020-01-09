@@ -159,15 +159,47 @@ class _CategoryPageState extends State<CategoryPage>
     //获取计算后的高度
     var rightItemHeight = rightItemWidth + ScreenAdapter.height(28);
 
-    return Row(
-      children: <Widget>[
-        _leftCateWidget(leftWidth),
-        _rightCateWidget(rightItemWidth, rightItemHeight)
-      ],
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.center_focus_weak, size: 28, color: Colors.black87),
+          onPressed: null,
+        ),
+        title: InkWell(
+          child: Container(
+            height: ScreenAdapter.height(70),
+            decoration: BoxDecoration(
+                color: Color.fromRGBO(233, 233, 233, 0.8),
+                borderRadius: BorderRadius.circular(30)),
+            padding: EdgeInsets.only(left: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.search),
+                Text("笔记本", style: TextStyle(fontSize: ScreenAdapter.size(28)))
+              ],
+            ),
+          ),
+          onTap: () {
+            Navigator.pushNamed(context, '/search');
+          },
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.message, size: 28, color: Colors.black87),
+            onPressed: null,
+          )
+        ],
+      ),
+      body: Row(
+        children: <Widget>[
+          _leftCateWidget(leftWidth),
+          _rightCateWidget(rightItemWidth, rightItemHeight)
+        ],
+      ),
     );
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }

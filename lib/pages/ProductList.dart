@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:jdshop/config/Config.dart';
-import 'package:jdshop/model/ProductModel.dart';
-import 'package:jdshop/services/ScreenAdapter.dart';
-import 'package:jdshop/widget/LoadingWidget.dart';
+import '../config/Config.dart';
+import '../model/ProductModel.dart';
+import '../services/ScreenAdapter.dart';
+import '../services/SearchServices.dart';
+import '../widget/LoadingWidget.dart';
 
 class ProductListPage extends StatefulWidget {
   Map arguments;
@@ -30,8 +31,10 @@ class _ProductListPageState extends State<ProductListPage> {
   bool flag = true;
 
   //是否有数据
-
   bool _hasMore = true;
+
+   //是否有搜索的数据
+  bool _hasData = true;
   //用于上拉分页
   ScrollController _scrollController = new ScrollController();
   //Scaffold key
@@ -52,6 +55,10 @@ class _ProductListPageState extends State<ProductListPage> {
   //二级导航选中判断
   int _selectHeaderId = 1;
 
+  //输入框的控制器
+  var _initKeywordsController = new TextEditingController();
+  var _cid, _keywords;
+
   _ProductListPageState(Map arguments) {
     this.arguments = arguments;
   }
@@ -59,6 +66,9 @@ class _ProductListPageState extends State<ProductListPage> {
   @override
   void initState() {
     super.initState();
+    _cid = widget.arguments['cid'];
+    _keywords = widget.arguments['keywords'];
+    _initKeywordsController.text = _keywords;
     _getProductListData();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >
@@ -75,26 +85,35 @@ class _ProductListPageState extends State<ProductListPage> {
       this.flag = false;
     });
 
-    var api =
-        '${Config.domain}api/plist?cid=${widget.arguments["cid"]}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}';
-
+    var api;
+    if (_keywords == null) {
+      api =
+          '${Config.domain}api/plist?cid=${this._cid}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}';
+    } else {
+      api =
+          '${Config.domain}api/plist?search=${this._keywords}&page=${this._page}&sort=${this._sort}&pageSize=${this._pageSize}';
+    }
     print(api);
     var result = await Dio().get(api);
 
     var productList = new ProductModel.fromJson(result.data);
 
-    print(productList.result.length);
+    if(productList.result.length==0 && this._page==1){
+         setState(() {
+           _hasData=false;
+         });
+    }else{
+      _hasData=true;
+    }
 
     if (productList.result.length < this._pageSize) {
       setState(() {
-        // this._productList = productList.result;
         this._productList.addAll(productList.result);
         this._hasMore = false;
         this.flag = true;
       });
     } else {
       setState(() {
-        // this._productList = productList.result;
         this._productList.addAll(productList.result);
         this._page++;
         this.flag = true;
@@ -112,7 +131,6 @@ class _ProductListPageState extends State<ProductListPage> {
       return (index == this._productList.length - 1)
           ? Text("--我是有底线的--")
           : Text("");
-      ;
     }
   }
 
@@ -209,12 +227,15 @@ class _ProductListPageState extends State<ProductListPage> {
 
   //导航改变的时候触发
   _subHeaderChange(id) {
-    setState(() {
-      if (id == 4) {
-        _scaffoldKey.currentState.openEndDrawer();
-      } else {
-        this._sort =
-            "${this._subHeaderList[id - 1]["fileds"]}_${this._subHeaderList[id - 1]["sort"]}";
+    if (id == 4) {
+      _scaffoldKey.currentState.openEndDrawer();
+      setState(() {
+        this._selectHeaderId = id;
+      });
+    } else {
+      setState(() {
+        this._selectHeaderId = id;
+        this._sort ="${this._subHeaderList[id - 1]["fileds"]}_${this._subHeaderList[id - 1]["sort"]}";
 
         //重置分页
         this._page = 1;
@@ -229,9 +250,8 @@ class _ProductListPageState extends State<ProductListPage> {
         this._hasMore = true;
         //重新请求
         this._getProductListData();
-      }
-      this._selectHeaderId = id;
-    });
+      });
+    }
   }
 
   Widget _subHeaderWidget() {
@@ -285,16 +305,50 @@ class _ProductListPageState extends State<ProductListPage> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('商品列表'),
-          actions: <Widget>[Text("")],
+          title: Container(
+            child: TextField(
+              controller: _initKeywordsController,
+              autofocus: true,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none)),
+              onChanged: (value) {
+                setState(() {
+                  _keywords = value;
+                });
+              },
+            ),
+            height: ScreenAdapter.height(68),
+            decoration: BoxDecoration(
+                color: Color.fromRGBO(233, 233, 233, 0.8),
+                borderRadius: BorderRadius.circular(30)),
+          ),
+          actions: <Widget>[
+            InkWell(
+              child: Container(
+                height: ScreenAdapter.height(68),
+                width: ScreenAdapter.width(80),
+                child: Row(
+                  children: <Widget>[Text("搜索")],
+                ),
+              ),
+              onTap: () {
+                 SearchServices.setHistoryData(this._keywords);
+                this._subHeaderChange(1);
+              },
+            )
+          ],
         ),
         endDrawer: Drawer(
           child: Container(
             child: Text("data"),
           ),
         ),
-        body: Stack(
+        body: _hasData? Stack(
           children: <Widget>[_productListWidget(), _subHeaderWidget()],
+        ):Center(
+          child: Text('没有您浏览的数据'),
         ));
   }
 }
