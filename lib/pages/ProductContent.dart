@@ -1,7 +1,10 @@
-import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:jdshop/provider/Cart.dart';
+import 'package:jdshop/services/CartServices.dart';
 import 'package:jdshop/services/EventBus.dart';
 import 'package:jdshop/widget/LoadingWidget.dart';
+import 'package:provider/provider.dart';
 import '../services/ScreenAdapter.dart';
 import '../widget/JdButton.dart';
 import 'ProductContent/ProductContentFirst.dart';
@@ -41,6 +44,7 @@ class _ProductContentPageState extends State<ProductContentPage> {
 
   @override
   Widget build(BuildContext context) {
+    var cartProvider = Provider.of<Cart>(context);
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -96,6 +100,7 @@ class _ProductContentPageState extends State<ProductContentPage> {
             ? Stack(
                 children: <Widget>[
                   TabBarView(
+                    physics: NeverScrollableScrollPhysics(),
                     children: <Widget>[
                       ProductContentFirst(this._productContentList),
                       ProductContentSecond(this._productContentList),
@@ -113,27 +118,43 @@ class _ProductContentPageState extends State<ProductContentPage> {
                           color: Colors.white),
                       child: Row(
                         children: <Widget>[
-                          Container(
-                            width: 100,
-                            height: ScreenAdapter.height(76),
+                          InkWell(
+                            onTap: (){
+                              Navigator.pushNamed(context, '/cart');
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                  top: ScreenAdapter.height(4)),
+                            width: ScreenAdapter.size(120),
+                            height: ScreenAdapter.height(84),
                             child: Column(
                               children: <Widget>[
-                                Icon(Icons.shopping_cart),
-                                Text("购物车")
+                                Icon(Icons.shopping_cart,size: ScreenAdapter.size(36)),
+                                 Text("购物车",style: TextStyle(
+                                    fontSize:ScreenAdapter.size(22)
+                                  ))
                               ],
                             ),
+                          ),
                           ),
                           Expanded(
                               flex: 1,
                               child: JdButton(
                                 color: Color.fromRGBO(253, 1, 0, 0.9),
                                 text: "加入购物车",
-                                cb: () {
+                                cb: () async {
                                   if (this._productContentList[0].attr.length >
                                       0) {
                                     //广播
                                     eventBus.fire(ProductContentEvent("加入购物车"));
-                                  } else {}
+                                  } else {
+                                    await CartServices.addCart(
+                                        this._productContentList[0]);
+                                    cartProvider.updateCartList();
+                                    Fluttertoast.showToast(
+                                      msg: '加入购物车成功',
+                                      toastLength: Toast.LENGTH_SHORT,gravity: ToastGravity.CENTER,);
+                                  }
                                 },
                               )),
                           Expanded(

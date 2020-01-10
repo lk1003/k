@@ -109,20 +109,27 @@ class _HomePageState extends State<HomePage>
           itemBuilder: (context, index) {
             String sPic = this._hotProductList[index].sPic;
             sPic = Config.domain + sPic.replaceAll("\\", "/");
-            return Column(
-              children: <Widget>[
-                Container(
-                  height: ScreenAdapter.height(140),
-                  width: ScreenAdapter.width(140),
-                  margin: EdgeInsets.only(right: ScreenAdapter.width(21)),
-                  child: Image.network(sPic, fit: BoxFit.cover),
-                ),
-                Container(
-                    padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
-                    height: ScreenAdapter.height(44),
-                    child: Text("￥${this._hotProductList[index].price}",
-                        style: TextStyle(color: Colors.red)))
-              ],
+
+            return InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, "/productContent",
+                    arguments: {"id": this._hotProductList[index].sId});
+              },
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    height: ScreenAdapter.height(140),
+                    width: ScreenAdapter.width(140),
+                    margin: EdgeInsets.only(right: ScreenAdapter.width(21)),
+                    child: Image.network(sPic, fit: BoxFit.cover),
+                  ),
+                  Container(
+                      padding: EdgeInsets.only(top: ScreenAdapter.height(10)),
+                      height: ScreenAdapter.height(44),
+                      child: Text("￥${this._hotProductList[index].price}",
+                          style: TextStyle(color: Colors.red)))
+                ],
+              ),
             );
           },
         ),

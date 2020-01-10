@@ -146,7 +146,13 @@ class _ProductListPageState extends State<ProductListPage> {
             //处理图片
             String pic = this._productList[index].pic;
             pic = Config.domain + pic.replaceAll('\\', '/');
-            return Column(
+
+            return InkWell(
+              onTap: (){
+                Navigator.pushNamed(context, "/productContent",
+                  arguments: {"id": this._productList[index].sId});
+              },
+              child: Column(
               children: <Widget>[
                 Row(
                   children: <Widget>[
@@ -204,6 +210,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 Divider(height: 20),
                 _showMore(index)
               ],
+            ),
             );
           },
         ),

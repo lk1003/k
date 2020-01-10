@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:jdshop/pages/ProductContent/CartNum.dart';
+import 'package:jdshop/provider/Cart.dart';
 import 'package:jdshop/services/CartServices.dart';
 import 'package:jdshop/services/EventBus.dart';
 import 'package:jdshop/services/ScreenAdapter.dart';
 import 'package:jdshop/widget/JdButton.dart';
+import 'package:provider/provider.dart';
 
 import '../../model/ProductContentModel.dart';
 
@@ -28,6 +31,7 @@ class _ProductContentFirstState extends State<ProductContentFirst>
   bool get wantKeepAlive => true;
 
   var actionEventBus;
+  var cartProvider;
 
   @override
   void dispose() {
@@ -91,6 +95,7 @@ class _ProductContentFirstState extends State<ProductContentFirst>
   _initAttr() {
     var attr = this._attr;
     for (var i = 0; i < attr.length; i++) {
+      attr[i].attrList.clear();   //清空数组里面的数据
       for (var j = 0; j < attr[i].list.length; j++) {
         if (j == 0) {
           attr[i].attrList.add({"title": attr[i].list[j], "checked": true});
@@ -200,6 +205,7 @@ class _ProductContentFirstState extends State<ProductContentFirst>
           return StatefulBuilder(
             builder: (BuildContext context, setBottomState) {
               return GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 //解决showModalBottomSheet点击消失的问题
                 onTap: () {
                   return false;
@@ -244,10 +250,14 @@ class _ProductContentFirstState extends State<ProductContentFirst>
                               child: JdButton(
                                 color: Color.fromRGBO(253, 1, 0, 0.9),
                                 text: "加入购物车",
-                                cb: () {
-                                 CartServices.addCart(this._productContent);
+                                cb: () async{
+                                await CartServices.addCart(this._productContent);
                                   //关闭底部筛选属性
                                   Navigator.of(context).pop();
+                                  cartProvider.updateCartList();
+                                 Fluttertoast.showToast(
+                                      msg: '加入购物车成功',
+                                      toastLength: Toast.LENGTH_SHORT,gravity: ToastGravity.CENTER,);
                                 },
                               ),
                             ),
@@ -280,7 +290,7 @@ class _ProductContentFirstState extends State<ProductContentFirst>
     //处理图片
     String pic = Config.domain + this._productContent.pic;
     pic = pic.replaceAll('\\', '/');
-
+  cartProvider=Provider.of<Cart>(context);
     return Container(
       padding: EdgeInsets.all(10),
       child: ListView(

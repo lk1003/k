@@ -5,9 +5,13 @@ class JdButton extends StatelessWidget {
   final Color color;
   final String text;
   final Object cb;
-
+  final double height;
   const JdButton(
-      {Key key, this.color = Colors.black, this.text = "按钮", this.cb = null})
+      {Key key,
+      this.color = Colors.black,
+      this.text = "按钮",
+      this.cb = null,
+      this.height = 68})
       : super(key: key);
 
   @override
@@ -16,7 +20,7 @@ class JdButton extends StatelessWidget {
     return InkWell(
       onTap: cb,
       child: Container(
-        height: ScreenAdapter.height(68),
+        height: ScreenAdapter.height(this.height),
         width: double.infinity,
         margin: EdgeInsets.all(5),
         padding: EdgeInsets.all(5),
