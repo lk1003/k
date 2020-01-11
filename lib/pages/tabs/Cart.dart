@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jdshop/provider/Cart.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import '../../provider/Cart.dart';
+import '../../provider/CheckOut.dart';
+import '../../services/CartServices.dart';
+import '../../services/UserServices.dart';
 import 'package:provider/provider.dart';
 import '../../pages/Cart/CartItem.dart';
 import '../../services/ScreenAdapter.dart';
@@ -12,20 +16,53 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  var _isEdit=false;
+  var _isEdit = false;
+
+  var checkOutProvider;
+  //结算
+  doCheckOut() async {
+    //1、获取购物车选中的数据
+    List checkOutData = await CartServices.getCheckOutData();
+
+//2、保存购物车选中的数据
+    checkOutProvider.changeCheckOutListData(checkOutData);
+//3、购物车有没有选中的数据
+    if (checkOutData.length > 0) {
+      //4、判断用户有没有登录
+      var loginState = await UserServices.getUserLoginState();
+      if (loginState) {
+        Navigator.pushNamed(context, '/checkOut');
+      } else {
+        Fluttertoast.showToast(
+          msg: '您还没有登录，请登录以后再去结算',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+        );
+        Navigator.pushNamed(context, '/login');
+      }
+    } else {
+      Fluttertoast.showToast(
+        msg: '购物车没有选中的数据',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ScreenAdapter.init(context);
     var cartProvider = Provider.of<Cart>(context);
+    checkOutProvider = Provider.of<CheckOut>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("购物车"),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.launch),
-            onPressed: (){
+            onPressed: () {
               setState(() {
-                _isEdit=!_isEdit;
+                _isEdit = !_isEdit;
               });
             },
           )
@@ -37,10 +74,9 @@ class _CartPageState extends State<CartPage> {
                 ListView(
                   children: <Widget>[
                     Column(
-                      children: cartProvider.cartList.map((f) {
-                        return CartItem(f);
-                      }).toList()
-                    ),
+                        children: cartProvider.cartList.map((f) {
+                      return CartItem(f);
+                    }).toList()),
                     SizedBox(height: 100)
                   ],
                 ),
@@ -65,39 +101,42 @@ class _CartPageState extends State<CartPage> {
                                   value: cartProvider.isCheckedAll,
                                   activeColor: Colors.pink,
                                   onChanged: (val) {
-                                     cartProvider.checkAll(val);
+                                    cartProvider.checkAll(val);
                                   },
                                 ),
                               ),
                               Text("全选"),
                               SizedBox(width: 20),
-                             this._isEdit==false? Text("合计："):Text(""),
-                             this._isEdit==false?  Text("${cartProvider.allPrice}",style: TextStyle(
-                                fontSize: 20,color: Colors.red
-                              )):Text("")
+                              this._isEdit == false ? Text("合计：") : Text(""),
+                              this._isEdit == false
+                                  ? Text("${cartProvider.allPrice}",
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.red))
+                                  : Text("")
                             ],
                           ),
                         ),
-                        _isEdit==false?
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: RaisedButton(
-                            child: Text("结算",
-                                style: TextStyle(color: Colors.white)),
-                            color: Colors.red,
-                            onPressed: () {},
-                          ),
-                        ): Align(
-                          alignment: Alignment.centerRight,
-                          child: RaisedButton(
-                            child: Text("删除",
-                                style: TextStyle(color: Colors.white)),
-                            color: Colors.red,
-                            onPressed: () {
-                              cartProvider.removeItem();
-                            },
-                          ),
-                        )
+                        _isEdit == false
+                            ? Align(
+                                alignment: Alignment.centerRight,
+                                child: RaisedButton(
+                                  child: Text("结算",
+                                      style: TextStyle(color: Colors.white)),
+                                  color: Colors.red,
+                                  onPressed: doCheckOut,
+                                ),
+                              )
+                            : Align(
+                                alignment: Alignment.centerRight,
+                                child: RaisedButton(
+                                  child: Text("删除",
+                                      style: TextStyle(color: Colors.white)),
+                                  color: Colors.red,
+                                  onPressed: () {
+                                    cartProvider.removeItem();
+                                  },
+                                ),
+                              )
                       ],
                     ),
                   ),

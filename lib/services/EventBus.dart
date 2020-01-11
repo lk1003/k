@@ -18,3 +18,20 @@ class UserEvent {
     this.str = str;
   }
 }
+
+//地址广播
+class AddressEvent{
+  String str;
+  AddressEvent(String str){
+    this.str=str;
+  }
+}
+
+
+//修改地址广播
+class CheckOutEvent{
+  String str;
+  CheckOutEvent(String str){
+    this.str=str;
+  }
+}
