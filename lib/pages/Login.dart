@@ -64,7 +64,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.close),
+        leading: IconButton(icon: Icon(Icons.close),onPressed: (){
+          Navigator.pop(context);
+        },),
         actions: <Widget>[
           FlatButton(
             child: Text("客服"),

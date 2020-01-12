@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:jdshop/provider/Cart.dart';
 import 'package:jdshop/provider/CheckOut.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,14 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white
       ),
+       localizationsDelegates: [                             //国际化
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [                                   //国际化
+        const Locale('zh','CH'),
+        const Locale('en','US'),
+      ]
     ),
     );
   }
