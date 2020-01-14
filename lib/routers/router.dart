@@ -17,6 +17,7 @@ import '../pages/Address/AddressList.dart';
 import '../pages/Pay.dart';
 import '../pages/Order.dart';
 import '../pages/OrderInfo.dart';
+import '../pages/Chart.dart';
 
 //配置路由
 final routes = {
@@ -40,6 +41,7 @@ final routes = {
   '/pay':(context)=>PayPage(),
   '/order': (context) => OrderPage(),
   '/orderinfo': (context) => OrderInfoPage(),
+   '/chart': (context) => ChartPage()
   
 };
 

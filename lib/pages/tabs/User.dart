@@ -95,9 +95,8 @@ class _UserPageState extends State<UserPage> {
         ListTile(
           leading: Icon(Icons.assignment, color: Colors.red),
           title: Text("全部订单"),
-          onTap: () async {
-            var loginState = await UserServices.getUserLoginState();
-            if (loginState) {
+          onTap: () {
+            if (isLogin) {
               Navigator.pushNamed(context, '/order');
             } else {
               Fluttertoast.showToast(
@@ -131,6 +130,18 @@ class _UserPageState extends State<UserPage> {
         ListTile(
           leading: Icon(Icons.people, color: Colors.black54),
           title: Text("在线客服"),
+          onTap: ()  {
+            if (this.isLogin) {
+              Navigator.pushNamed(context, '/chart');
+            } else {
+              Fluttertoast.showToast(
+                msg: '您还没有登录，请登录以后再去结算',
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.CENTER,
+              );
+              Navigator.pushNamed(context, '/login');
+            }
+          }
         ),
         Divider(),
         this.isLogin
