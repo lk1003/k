@@ -8,6 +8,8 @@ import 'package:dio/dio.dart';
 
 //轮播图类模型
 import '../../model/FocusModel.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:local_auth/auth_strings.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -21,6 +23,7 @@ class _HomePageState extends State<HomePage>
   List _focusData = [];
   List _hotProductList = [];
   List _bestProductList = [];
+  final LocalAuthentication auth = LocalAuthentication();
 
   @override
   void initState() {
@@ -28,6 +31,48 @@ class _HomePageState extends State<HomePage>
     _getFocusData();
     _getHotProductData();
     _getBestProductData();
+
+    _checkBiometrics();
+  }
+
+  @override
+  void dispose() {    
+    super.dispose();
+    auth.stopAuthentication();
+  }
+
+  _checkBiometrics() async {
+    bool canCheckBiometrics;
+    try {
+      canCheckBiometrics = await auth.canCheckBiometrics;
+      if (canCheckBiometrics) {
+        List<BiometricType> availableBiometrics =
+            await auth.getAvailableBiometrics();
+        print("availableBiometrics=$availableBiometrics");
+
+        const andStrings = const AndroidAuthMessages(
+          cancelButton: '取消',
+          goToSettingsButton: '去设置',
+          fingerprintNotRecognized: '指纹识别失败',
+          goToSettingsDescription: '请设置指纹.',
+          fingerprintHint: '指纹',
+          fingerprintSuccess: '指纹识别成功',
+          signInTitle: '指纹验证',
+          fingerprintRequiredTitle: '请先录入指纹!',
+        );
+
+        bool didAuthenticate = await auth.authenticateWithBiometrics(
+            localizedReason: '扫描指纹进行身份识别',
+            useErrorDialogs: false,
+            stickyAuth: true,
+            androidAuthStrings: andStrings);
+        print("didAuthenticate=$didAuthenticate");
+      } else {
+          print("不支持");
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   //获取轮播图数据
